@@ -21,7 +21,9 @@ fn main() {
 
     // println!("Shutting down.");
     // Esta es la ip de torrent.ubuntu.com al puerto 6969 que en general es el default para http
-    make_request("91.189.95.21:6969");
+    make_request("bttracker.debian.org:6969");
+    // necesito un tracker que no me fuerce a hacer https
+    // % adelante a hash (urlencoded)
 }
 
 fn make_request(addr: &str) {
@@ -29,16 +31,16 @@ fn make_request(addr: &str) {
         Ok(mut stream) => {
             println!("Successfully connected to server");
 
-            let request = "GET /announce?info_hash=778ce280b595e57780ff083f2eb6f897dfa4a4ee&peer_id=1234 HTTP/1.1\r\nHost: torrent.ubuntu.com\r\nContent-type: text/plain\r\n\r\n";
+            let request = "GET /announce?info_hash=%b1%11%81%3c%e6%0f%42%91%97%34%82%3d%f5%ec%20%bd%1e%04%e7%f7&peer_id=asdfghasdfghasdfghas&event=started HTTP/1.1\r\nHost: bttracker.debian.org\r\n\r\n";
             stream.write(request.as_bytes()).unwrap();
 
-            let mut data = [0 as u8; 512]; // esto es un buffer de 256 bytes, fijarse que viene cortada la respuesta
-                                           //porque no le da el buffer para todo. Habría que hacerlo dinamico o algo asi
-            // aca espero a que me respondan
-            match stream.read_exact(&mut data) {
+            let mut data = vec![];
+            match stream.read_to_end(&mut data) {
                 Ok(_) => {
                     let text = String::from_utf8((&data).to_vec()).unwrap();
-                    println!("Respuesta: {}", text);
+                    // println!("Respuesta: {}", text);
+                    let splitted = text.split("\n\r\n").collect::<Vec<&str>>();
+                    println!("{}", splitted[1]);
                 }
                 Err(e) => {
                     println!("Failed to receive data: {}", e);
